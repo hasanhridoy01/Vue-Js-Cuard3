@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Vue Js Crud</title>
+    <!-- ALL CSS FILES  -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/all.min.css">
+
+</head>
+
+<body>
+    <section class="root">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                
+                <div class="col-md-3">
+                    <div class="box shadow px-3 search-bar">
+                        <h2 class="pt-3">Search Your Job</h2>
+
+                        <hr>
+
+                        <h5>Recent Search</h5>
+                        <ul v-for="(s,i) in Rsearch" class="list-group">
+                            <li class="list-group-item"><a class="text-success" href="">{{ i+1 }}. {{ s.title }}</a></li>
+                        </ul>
+                        
+                        <h5>Search by Catagories</h5>
+                        <span v-for="(cat, i) in allcats">
+                        <input v-model="categorysearch" @click="categorySearch" type="radio" name="category" :value="cat.catagory"> <label>{{ cat.catagory }}</label><br>
+                        </span>
+
+                        <h5>Job Budget</h5>
+                        <div class="slidecontainer">
+                            <input v-model="priceRang" @change="pricerang" type="range" min="10000" max="90000" value="50" class="slider" id="myRange"><br>
+                            <p>Budget: <span id="demo" v-html="priceRang" style="font-size: 17px; font-weight: bold;"></span></p>
+                        </div>
+
+                        <h5>Search by Location</h5>
+                        <input v-model="location" @change="searchLocation" type="radio" value="Remote" name="Remote"> <label class="checke">Remote</label>
+                        <input v-model="location" @change="searchLocation" type="radio" value="World Wide" name="World Wide"> <label class="checke">World Wide</label><br>
+
+
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="wrap-table shadow">
+                        <div class="card">
+                            <div class="card-header">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <input v-model="search" @keyup="searchData" style="width: 614px;" type="text" class="form-control" id="inputPassword2" placeholder="Search your job">
+                                    </div>
+                                    <button  type="submit" class="btn btn-success mt-1" style="width: 140px;">Search Job</button>
+                                </form>
+                            </div>
+                            <div class="card-body">
+                                <h2>All Data</h2>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Title</th>
+                                            <th>Catgeory</th>
+                                            <th>Budget</th>
+                                            <th>Location</th>
+                                            <th>File</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        <tr v-for="(job, i) in jobs">
+                                            <td>{{ i+1 }}</td>
+                                            <td>{{ job.title }}</td>
+                                            <td>{{ job.catagory }}</td>
+                                            <td>{{ job.budget }}</td>
+                                            <td>{{ job.location }}</td>
+                                            <td><img :src="'assets/media/employee/' + job.photo" alt=""></td>
+                                            <td>
+                                                <a @click="showSingleEmployee(job.id, $event)" class=" text-light btn btn-sm btn-info" data-toggle="modal" href="#Show_job"><i class="fas fa-eye"></i></a>
+                                                <a @click="editSingleEmployee(job.id, $event)" class="btn btn-sm btn-warning" data-toggle="modal" href="#view_single_employee"><i class="fas fa-edit"></i></a>
+                                                <a @click="employeeDelete(job.id, $event)" class="btn btn-sm btn-danger" href="#"><i class="fa fa-trash"></i></a>
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card shadow px-3 mt-5 mb-5">
+                        <div class="card-body">
+                            <h2 class="pt-3">Add New Job</h2>
+                            <hr>
+                            <form action="">
+                                <div class="form-group">
+                                    <label for="">Job Title</label>
+                                    <input v-model="job.title" class="form-control" type="text" name="name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Description</label>
+                                    <textarea v-model="job.description" name="" id="" cols="27" rows="5"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Catagory</label>
+                                    <select v-model="job.catagory" class="form-control" name="" id="">
+                                    <option value="--Catagory--">--category--</option>
+                                    <option value="WebProgrammer">WebProgrammer</option>
+                                    <option value="PhotoShop">PhotoShop</option>
+                                </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Budget</label>
+                                    <div class="input-group mb-2">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text">$</div>
+                                        </div>
+                                        <input v-model="job.budget" type="text" class="form-control" id="inlineFormInputGroup" placeholder="">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="">Location</label><br>
+                                    <input v-model="job.location" type="radio" name="location" value="Remote" id="Remote"><label for="Remote">Remote</label>
+                                    <input v-model="job.location" type="radio" name="location" value="World Wide" id="World Wide"><label for="World Wide">World Wide</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="">Remote Location</label>
+                                    <input v-model="job.remotelocation" class="form-control" type="text">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="">Attach File (Optional)</label>
+                                    <input ref="photo" class="form-control" type="file">
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="checkbox" id="check" name="check">
+                                    <label for="check">I agree to terms and conditions</label>
+                                </div>
+                                <div class="form-group">
+                                    <input @click="addNewJod($event)" class="btn btn-success" type="submit" value="Post Your Job">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- show all employee form modal -->
+        <div id="Show_job" class="modal fade">
+            <div class="modal-dialog modal-dialog-cantered">
+                <div class="modal-content">
+                    <!-- <div class="modal-header">
+                        <h3>Show Single Users</h3>
+                        
+                    </div> -->
+                    <div class="modal-body">
+                        <button data-dismiss="modal" class="close">&times;</button>
+                        <img class="shadow-lg mb-2" style="height: 260px; width: 260px; border: 8px solid whitesmoke; display: block; margin: auto; object-fit: cover;" :src="'assets/media/employee/' + single_employee.photo" alt="">
+                        <h3 align="center" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">{{ single_employee.title }}</h3>
+                        <table class="table table-striped">
+                            <tr>
+                                <td>Title</td>
+                                <td>{{ single_employee.title }}</td>
+                            </tr>
+                            <tr>
+                                <td>Catagory</td>
+                                <td>{{ single_employee.catagory }}</td>
+                            </tr>
+                            <tr>
+                                <td>Budget</td>
+                                <td>{{ single_employee.budget }}</td>
+                            </tr>
+                            <tr>
+                                <td>Location</td>
+                                <td>{{ single_employee.location }}</td>
+                            </tr>
+                            <tr>
+                                <td>Remote Location</td>
+                                <td>{{ single_employee.remotelocation }}</td>
+                            </tr>
+                            <!-- <tr>
+                                <td>Description</td>
+                                <td>{{ single_employee.description }}</td>
+                            </tr> -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- show single employee view -->
+        <div id="view_single_employee" class="modal fade">
+            <div class="modal-dialog modal-dialog-cantered">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <button data-dismiss="modal" class="close">&times;</button>
+                        <div class="card shadow-lg mt-5 mb-2">
+                            <div class="card-body">
+                                <h2 class="pt-3">Update Job</h2>
+                                <hr>
+                                <form action="">
+                                    <div class="form-group">
+                                        <label for="">Job Title</label>
+                                        <input v-model="edit_employee.title" class="form-control" type="text" name="name">
+                                        <input v-model="edit_employee.id" class="form-control" type="hidden">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="">Description</label><br>
+                                        <textarea v-model="edit_employee.description" name="" id="" cols="51" rows="5"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="">Catagory</label>
+                                        <select v-model="edit_employee.catagory" class="form-control" name="" id="">
+                                        <option value="--Catagory--">--category--</option>
+                                        <option value="WebProgrammer">WebProgrammer</option>
+                                        <option value="PhotoShop">PhotoShop</option>
+                                    </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="">Budget</label>
+                                        <div class="input-group mb-2">
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-text">$</div>
+                                            </div>
+                                            <input v-model="edit_employee.budget" type="text" class="form-control" id="inlineFormInputGroup" placeholder="">
+                                        </div>
+                                    </div>
+    
+                                    <div class="form-group">
+                                        <label for="">Location</label><br>
+                                        <input v-model="edit_employee.location" type="radio" name="location" value="Remote" id="Remote"><label for="Remote">Remote</label>
+                                        <input v-model="edit_employee.location" type="radio" name="location" value="World Wide" id="World Wide"><label for="World Wide">World Wide</label>
+                                    </div>
+    
+                                    <div class="form-group">
+                                        <label for="">Remote Location</label>
+                                        <input v-model="edit_employee.remotelocation" class="form-control" type="text">
+                                    </div>
+    
+                                    <div class="form-group">
+                                        <label for="">Attach File (Optional)</label>
+                                        <input ref="photo" class="form-control" type="file">
+                                        <input v-model="edit_employee.photo" class="form-control" type="hidden">
+                                    </div>
+    
+                                    <div class="form-group">
+                                        <input type="checkbox" id="check" name="check">
+                                        <label for="check">I agree to terms and conditions</label>
+                                    </div>
+                                    <div class="form-group">
+                                        <input @click="UpdateJobPost($event)" class="btn btn-success" type="submit" value="Update Your Job">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+    <!-- JS FILES  -->
+    <script src="assets/js/jquery-3.4.1.min.js"></script>
+    <script src="assets/js/popper.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+
+    <!-- vue-js-link -->
+    <script src="assets/js/vue.js"></script>
+    <script src="assets/js/vue-router.js"></script>
+    <script src="assets/js/axios.min.js"></script>
+    <script src="assets/js/custom_scripts.js"></script>
+</body>
+
+</html>
